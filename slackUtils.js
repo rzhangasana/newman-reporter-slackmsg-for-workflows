@@ -143,7 +143,11 @@ async function send(url, message, token) {
     };
     let result;
     try {
-        result = await axios(payload);
+        if(message.data.assertions_failed === "0" || message.data.assertions_failed === 0) {
+            return true;
+        } else {
+            result = await axios(payload);
+        }
     } catch (e) {
         result = false;
         console.error(`Error in sending message to slack ${e}`);
