@@ -10,6 +10,11 @@ function slackMessage(stats, timings, failures, executions, maxMessageSize, coll
     let parsedFailures = parseFailures(failures);
     let skipCount = getSkipCount(executions);
 
+    if (failures.length === 0) {
+        // Dont report on success
+        return "Success"; // The slack workflow should fail in this case since we aren't sending the expected keys
+    }
+
     // Build info section for collection/environment/reporting URL
     let info = {};
     if (collection) {
@@ -143,11 +148,7 @@ async function send(url, message, token) {
     };
     let result;
     try {
-        if(message.data.assertions_failed === "0" || message.data.assertions_failed === 0) {
-            return true;
-        } else {
-            result = await axios(payload);
-        }
+        result = await axios(payload);
     } catch (e) {
         result = false;
         console.error(`Error in sending message to slack ${e}`);
