@@ -35,7 +35,6 @@ function slackMessage(stats, timings, failures, executions, maxMessageSize, coll
     let detailsText = "";
     if (failures.length > 0) {
         detailsText += ":fire: Failures :fire:\n";
-        // If limitFailures is set, only include up to that many failure groups
         if (limitFailures > 0) {
             detailsText += failMessage(parsedFailures.splice(0, limitFailures));
         } else {
@@ -50,12 +49,14 @@ function slackMessage(stats, timings, failures, executions, maxMessageSize, coll
     if (infoSection) resultText += infoSection + "\n";
     resultText += summaryText + "\n" + detailsText;
 
-    // Return a JSON payload with a "channel" and a "result" key
-    return jsonminify(`
-    {
-        "channel": "${channel}",
-        "result": "${resultText}"
-    }`);
+    // Build the payload as an object
+    const payload = {
+        channel: channel,
+        result: resultText
+    };
+
+    // Use JSON.stringify with indentation if needed
+    return JSON.stringify(payload, null, 4);
 }
 
 function collectionAndEnvironentFileBlock(collection, environment) {
