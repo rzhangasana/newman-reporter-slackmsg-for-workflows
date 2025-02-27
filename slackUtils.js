@@ -4,158 +4,78 @@ var jsonminify = require("jsonminify");
 
 let messageSize;
 
-// creates message for slack
+// creates plain text message for slack
 function slackMessage(stats, timings, failures, executions, maxMessageSize, collection, environment, channel, reportingUrl, limitFailures) {
     messageSize = maxMessageSize;
     let parsedFailures = parseFailures(failures);
     let skipCount = getSkipCount(executions);
-    let failureMessage = `
-    "attachments": [
-        {
-            "mrkdwn_in": ["text"],
-            "color": "#FF0000",
-            "author_name": "Newman Tests",
-            "title": ":fire: Failures :fire:",
-            "fields": [
-                ${limitFailures > 0 ? failMessage(parsedFailures.splice(0, limitFailures)) : failMessage(parsedFailures)}
-            ],
-            "footer": "Newman Test",
-            "footer_icon": "https://platform.slack-edge.com/img/default_application_icon.png"
+
+    // Build info section for collection/environment/reporting URL
+    let infoSection = "";
+    if (collection) {
+        infoSection += `Collection: ${collection}\n`;
+        if (environment) {
+            infoSection += `Environment: ${environment}\n`;
         }
-    ]`
-    let successMessage = `
-    "attachments": [
-        {
-            "mrkdwn_in": ["text"],
-            "color": "#008000",
-            "author_name": "Newman Tests",
-            "title": ":white_check_mark: All Passed :white_check_mark:",
-            "footer": "Newman Test",
-            "footer_icon": "https://platform.slack-edge.com/img/default_application_icon.png"
+    }
+    if (reportingUrl) {
+        infoSection += `Reporting URL: ${reportingUrl}\n`;
+    }
+
+    // Build test summary text
+    let summaryText = "*Test Summary*\n";
+    summaryText += `Total Tests: ${stats.requests.total}\n`;
+    summaryText += `Test Passed: ${stats.requests.total - parsedFailures.length - skipCount}\n`;
+    summaryText += `Test Failed: ${parsedFailures.length}\n`;
+    summaryText += `Test Skipped: ${skipCount}\n`;
+    summaryText += `Test Duration: ${prettyms(timings.completed - timings.started)}\n\n`;
+    summaryText += `Assertions: Total: ${stats.assertions.total}  Failed: ${stats.assertions.failed}\n`;
+
+    // Build failure or success message
+    let detailsText = "";
+    if (failures.length > 0) {
+        detailsText += ":fire: Failures :fire:\n";
+        // If limitFailures is set, only include up to that many failure groups
+        if (limitFailures > 0) {
+            detailsText += failMessage(parsedFailures.splice(0, limitFailures));
+        } else {
+            detailsText += failMessage(parsedFailures);
         }
-    ]`
+    } else {
+        detailsText += ":white_check_mark: All Passed :white_check_mark:\n";
+    }
+
+    // Combine all text parts
+    let resultText = "";
+    if (infoSection) resultText += infoSection + "\n";
+    resultText += summaryText + "\n" + detailsText;
+
+    // Return a JSON payload with a "channel" and a "result" key
     return jsonminify(`
     {
         "channel": "${channel}",
-        "blocks": [
-            {
-                "type": "divider"
-            },
-            ${collectionAndEnvironentFileBlock(collection, environment)}
-            ${reportingUrlSection(reportingUrl)}
-            {
-                "type": "divider"
-            },
-            {
-                "type": "section",
-                "text": {
-                    "type": "mrkdwn",
-                    "text": "*Test Summary*"
-                }
-            },
-            {
-                "type": "section",
-                "fields": [
-                    {
-                        "type": "mrkdwn",
-                        "text": "Total Tests:"
-                    },
-                    {
-                        "type": "mrkdwn",
-                        "text": "${stats.requests.total}"
-                    },
-                    {
-                        "type": "mrkdwn",
-                        "text": "Test Passed:"
-                    },
-                    {
-                        "type": "mrkdwn",
-                        "text": "${stats.requests.total - parsedFailures.length - skipCount}"
-                    },
-                    {
-                        "type": "mrkdwn",
-                        "text": "Test Failed:"
-                    },
-                    {
-                        "type": "mrkdwn",
-                        "text": "${parsedFailures.length}"
-                    },
-                    {
-                        "type": "mrkdwn",
-                        "text": "Test Skipped:"
-                    },
-                    {
-                        "type": "mrkdwn",
-                        "text": "${skipCount}"
-                    },
-                    {
-                        "type": "mrkdwn",
-                        "text": "Test Duration:"
-                    },
-                    {
-                        "type": "mrkdwn",
-                        "text": "${prettyms(timings.completed - timings.started)}"
-                    }
-                ]
-            },
-            {
-                "type": "section",
-                "fields": [
-                {
-                    "type": "mrkdwn",
-                    "text": "Assertions:"
-                },
-                {
-                    "type": "mrkdwn",
-                    "text": "Total: ${stats.assertions.total}  Failed: ${stats.assertions.failed}"
-                }
-            ]
-            },
-            {
-                "type": "divider"
-            }
-        ],
-        ${failures.length > 0 ? failureMessage : successMessage}
-       }`);
+        "result": "${resultText}"
+    }`);
 }
 
 function collectionAndEnvironentFileBlock(collection, environment) {
-    if (collection) {
-        return `{
-            "type": "section",
-			"text": {
-				"type": "mrkdwn",
-				"text": "Collection: ${collection} \\n Environment: ${environment ? environment : ''}"
-			}
-        }, `
-    }
+    // No longer used since we’re now sending all info as text.
     return '';
 }
 
 function reportingUrlSection(reportingUrl) {
-    if (reportingUrl) {
-        return `{
-            "type": "section",
-			"text": {
-				"type": "mrkdwn",
-				"text": "Reporting URL: ${reportingUrl}"
-			}
-        }, `
-    }
+    // No longer used.
     return '';
 }
 
 function getSkipCount(executions) {
     return executions.reduce((acc, execution) => {
-        if (execution.assertions) {
-            if (execution.assertions[0].skipped) {
-                acc = acc + 1;
-            };
-        };
+        if (execution.assertions && execution.assertions[0].skipped) {
+            acc = acc + 1;
+        }
         return acc;
     }, 0);
 }
-
 
 // Takes fail report and parse it for further processing
 function parseFailures(failures) {
@@ -183,50 +103,34 @@ function parseFailures(failures) {
                 name: failure.error.name || 'No test name',
                 test: failure.error.test || 'connection error',
                 message: failure.error.message || 'No Error Message'
-            })
+            });
         }
         return acc;
     }, []);
 }
 
-// Takes parsedFailures and create failMessages
+// Takes parsedFailures and create failMessages as plain text
 function failMessage(parsedFailures) {
     return parsedFailures.map((failure) => {
-        return `
-        {
-            "title": "${failure.name}",
-            "short": false
-        },
-        ${failErrors(failure.tests)}`;
-    }).join();
+        return `*${failure.name}*\n${failErrors(failure.tests)}\n`;
+    }).join("\n");
 }
 
-// Takes failMessages and create Error messages for each failures
+// Takes error messages and create plain text for each failure
 function failErrors(parsedErrors) {
     return parsedErrors.map((error, index) => {
-        return `
-        {
-            "value": "*\`${index + 1}. ${error.name} - ${error.test}\`*",
-            "short": false
-        },
-        {
-            "value": "• ${cleanErrorMessage(error.message, messageSize)}",
-            "short": false
-        }`;
-    }).join();
+        return `${index + 1}. ${error.name} - ${error.test}\n• ${cleanErrorMessage(error.message, messageSize)}`;
+    }).join("\n");
 }
 
 function cleanErrorMessage(message, maxMessageSize) {
-    // replaces the quotes and double quotes in order for the message to be valid json format
-    // as well as cutting messages to size 100 and truncating it with ...
-    let filteredMessage = message.replace(/["']/g, "")
-    filteredMessage = filteredMessage.replace('expected', 'Expected -')
+    let filteredMessage = message.replace(/["']/g, "");
+    filteredMessage = filteredMessage.replace('expected', 'Expected -');
     if (filteredMessage.length > maxMessageSize) {
         return `${filteredMessage.substring(0, maxMessageSize)}...`;
     }
     return filteredMessage;
 }
-
 
 // sends the message to slack via POST to webhook url
 async function send(url, message, token) {
