@@ -1,5 +1,5 @@
 {
-  "name": "newman-reporter-slackmsg",
+  "name": "newman-reporter-slackmsg-for-workflows",
   "version": "1.3.2",
   "description": "newman reporter to slack",
   "main": "index.js",
