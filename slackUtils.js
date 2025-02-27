@@ -4,63 +4,60 @@ var jsonminify = require("jsonminify");
 
 let messageSize;
 
-// creates plain text message for slack
+// creates plain text message for slack in key/value pairs
 function slackMessage(stats, timings, failures, executions, maxMessageSize, collection, environment, channel, reportingUrl, limitFailures) {
     messageSize = maxMessageSize;
     let parsedFailures = parseFailures(failures);
     let skipCount = getSkipCount(executions);
 
     // Build info section for collection/environment/reporting URL
-    let infoSection = "";
+    let info = {};
     if (collection) {
-        infoSection += `Collection: ${collection}\n`;
+        info.collection = collection;
         if (environment) {
-            infoSection += `Environment: ${environment}\n`;
+            info.environment = environment;
         }
     }
     if (reportingUrl) {
-        infoSection += `Reporting URL: ${reportingUrl}\n`;
+        info.reporting_url = reportingUrl;
     }
 
-    // Build test summary text
-    let summaryText = "*Test Summary*\n";
-    summaryText += `Total Tests: ${stats.requests.total}\n`;
-    summaryText += `Test Passed: ${stats.requests.total - parsedFailures.length - skipCount}\n`;
-    summaryText += `Test Failed: ${parsedFailures.length}\n`;
-    summaryText += `Test Skipped: ${skipCount}\n`;
-    summaryText += `Test Duration: ${prettyms(timings.completed - timings.started)}\n\n`;
-    summaryText += `Assertions: Total: ${stats.assertions.total}  Failed: ${stats.assertions.failed}\n`;
-
-    // Build failure or success message
-    let detailsText = "";
-    if (failures.length > 0) {
-        detailsText += ":fire: Failures :fire:\n";
-        if (limitFailures > 0) {
-            detailsText += failMessage(parsedFailures.splice(0, limitFailures));
-        } else {
-            detailsText += failMessage(parsedFailures);
-        }
-    } else {
-        detailsText += ":white_check_mark: All Passed :white_check_mark:\n";
-    }
-
-    // Combine all text parts
-    let resultText = "";
-    if (infoSection) resultText += infoSection + "\n";
-    resultText += summaryText + "\n" + detailsText;
-
-    // Build the payload as an object
-    const payload = {
-        channel: channel,
-        result: resultText
+    // Build summary object
+    const summary = {
+        total_tests: stats.requests.total,
+        tests_passed: stats.requests.total - parsedFailures.length - skipCount,
+        tests_failed: parsedFailures.length,
+        tests_skipped: skipCount,
+        test_duration: prettyms(timings.completed - timings.started),
+        assertions_total: stats.assertions.total,
+        assertions_failed: stats.assertions.failed
     };
 
-    // Use JSON.stringify with indentation if needed
+    // Build details message for failures or success
+    let details = "";
+    if (failures.length > 0) {
+        details += ":fire: Failures :fire:\n";
+        if (limitFailures > 0) {
+            details += failMessage(parsedFailures.splice(0, limitFailures));
+        } else {
+            details += failMessage(parsedFailures);
+        }
+    } else {
+        details += ":white_check_mark: All Passed :white_check_mark:";
+    }
+
+    // Build the payload as an object with individual keys
+    const payload = Object.assign({}, info, summary, {
+        details: details,
+        channel: channel
+    });
+
+    // Return the JSON payload (minified if you wish)
     return JSON.stringify(payload, null, 4);
 }
 
 function collectionAndEnvironentFileBlock(collection, environment) {
-    // No longer used since we’re now sending all info as text.
+    // No longer used since we’re now sending all info as key/value pairs.
     return '';
 }
 
