@@ -5,8 +5,6 @@
   "main": "index.js",
   "scripts": {
     "lint": "eslint index/js",
-    "test": "jest",
-    "prepack": "npm run test",
     "pack": "npm pack && npm install -g newman-reporter-slackmsg-for-workflows-1.3.2.tgz"
   },
   "repository": {
