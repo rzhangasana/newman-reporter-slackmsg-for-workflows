@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/rzhangasana/newman-reporter-slackmsg-for-workflows"
+    "url": "git+https://github.com/rzhangasana/newman-reporter-slackmsg-for-workflows.git"
   },
   "keywords": [
     "newman",
