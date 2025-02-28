@@ -18,12 +18,12 @@
     "newman reporter",
     "custom newman reporter"
   ],
-  "author": "Jack Chaw",
+  "author": "Richard Zhang",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/jackcoded/newman-reporter-slackmsg/issues"
+    "url": "https://github.com/rzhangasana/newman-reporter-slackmsg-for-workflows/issues"
   },
-  "homepage": "https://github.com/jackcoded/newman-reporter-slackmsg#readme",
+  "homepage": "https://github.com/rzhangasana/newman-reporter-slackmsg-for-workflows#readme",
   "dependencies": {
     "@types/node": "^14.0.13",
     "axios": "^0.21.1",

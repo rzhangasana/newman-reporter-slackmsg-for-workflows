@@ -1,6 +1,7 @@
 # newman-reporter-slackmsgforworkflows
 
 [Forked]: Whats the difference? This is updated for slack workflow webhooks instead.
+[Original]: https://github.com/jackcoded/newman-reporter-slackmsg
 
 Custom [Newman](https://github.com/postmanlabs/newman) reporter to send message to [Slack](https://slack.com/)
 
