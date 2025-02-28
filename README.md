@@ -10,6 +10,8 @@ You can capture the following variables in the workflow webhook
 - assertions_total
 - assertions_failed
 - details
+
+
 [Original]: https://github.com/jackcoded/newman-reporter-slackmsg
 
 Custom [Newman](https://github.com/postmanlabs/newman) reporter to send message to [Slack](https://slack.com/)
