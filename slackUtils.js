@@ -3,7 +3,8 @@ const axios = require('axios').default;
 var jsonminify = require("jsonminify");
 
 let messageSize;
-export const SUCCESS = "Success";
+const SUCCESS = "Success";
+module.exports.SUCCESS = SUCCESS;
 
 // creates plain text message for slack in key/value pairs
 function slackMessage(stats, timings, failures, executions, maxMessageSize, collection, environment, channel, reportingUrl, limitFailures) {
