@@ -11,10 +11,10 @@ function slackMessage(stats, timings, failures, executions, maxMessageSize, coll
     let parsedFailures = parseFailures(failures);
     let skipCount = getSkipCount(executions);
 
-    if (failures.length === 0) {
-        // Dont report on success
-        return SUCCESS; // The slack workflow should fail in this case since we aren't sending the expected keys
-    }
+    // if (failures.length === 0) {
+    //     // Dont report on success
+    //     return SUCCESS; // The slack workflow should fail in this case since we aren't sending the expected keys
+    // }
 
     // Build info section for collection/environment/reporting URL
     let info = {};
