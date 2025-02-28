@@ -3,6 +3,7 @@ const axios = require('axios').default;
 var jsonminify = require("jsonminify");
 
 let messageSize;
+export const SUCCESS = "Success";
 
 // creates plain text message for slack in key/value pairs
 function slackMessage(stats, timings, failures, executions, maxMessageSize, collection, environment, channel, reportingUrl, limitFailures) {
@@ -12,7 +13,7 @@ function slackMessage(stats, timings, failures, executions, maxMessageSize, coll
 
     if (failures.length === 0) {
         // Dont report on success
-        return "Success"; // The slack workflow should fail in this case since we aren't sending the expected keys
+        return SUCCESS; // The slack workflow should fail in this case since we aren't sending the expected keys
     }
 
     // Build info section for collection/environment/reporting URL

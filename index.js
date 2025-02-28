@@ -1,5 +1,6 @@
 const {
-    slackUtils
+    slackUtils,
+    SUCCESS
 } = require('./slackUtils');
 
 function SlackNewmanReporter(emitter, reporterOptions) {
@@ -26,8 +27,10 @@ function SlackNewmanReporter(emitter, reporterOptions) {
         if (run.failures.length > 0 && reporterOptions.failuresChannel) {
             channel = reporterOptions.failuresChannel;
         }
-
-        slackUtils.send(webhookUrl, slackUtils.slackMessage(run.stats, run.timings, run.failures, run.executions, messageSize, collection, environment, channel, reportingUrl, limitFailures), token);
+        const slackmsg = slackUtils.slackMessage(run.stats, run.timings, run.failures, run.executions, messageSize, collection, environment, channel, reportingUrl, limitFailures)
+        if(slackmsg !== SUCCESS) {
+            slackUtils.send(webhookUrl, slackmsg, token);
+        }
     });
 
     function missingReporterOptions(reporterOptions) {
