@@ -1,6 +1,6 @@
 # newman-reporter-slackmsgforworkflows
 
-[Forked]
+[Forked]: Whats the difference? This is updated for slack workflow webhooks instead.
 
 Custom [Newman](https://github.com/postmanlabs/newman) reporter to send message to [Slack](https://slack.com/)
 
