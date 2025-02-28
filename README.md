@@ -1,4 +1,6 @@
-# newman-reporter-slackmsg
+# newman-reporter-slackmsgforworkflows
+
+[Forked]
 
 Custom [Newman](https://github.com/postmanlabs/newman) reporter to send message to [Slack](https://slack.com/)
 
@@ -11,30 +13,25 @@ or
 - Create a [Slack bot to send to channel or user dynamically](https://api.slack.com/messaging/sending)
 
 ## Installation
- ```CLI
- npm i -g newman-reporter-slackmsg
- ```
+ Add to package.json
+```"newman-reporter-slackmsgforworkflows": "git+https://github.com/rzhangasana/newman-reporter-slackmsg-for-workflows.git"```
+and then npm install
 
 ## Usage
 ```CLI
- newman run <collectionFile> -e <environmentFile> --suppress-exit-code -r slackmsg --reporter-slackmsg-webhookurl '<webhookurl>'
-```
-
-## Usage with channel override bot
-```CLI
- newman run <collectionFile> -e <environmentFile> --suppress-exit-code -r slackmsg --reporter-slackmsg-webhookurl '<https://slack.com/api/chat.postMessage>' --reporter-slackmsg-token '<bearer token>' --reporter-slackmsg-channel '<channel or userid>'
+ newman run <collectionFile> -e <environmentFile> --suppress-exit-code -r slackmsgforworkflows --reporter-slackmsgforworkflows-webhookurl '<webhookurl>'
 ```
 
 ## Reporter Options Optionals
 ```
- --reporter-slackmsg-messageSize '<messageSize>' e.g 150
- --reporter-slackmsg-token '<bearer token>' e.g xoxb-XXXXXXXXXXXX-TTTTTTTTTTTTTT
- --reporter-slackmsg-channel '<channel>' e.g #general
- --reporter-slackmsg-failuresChannel '<channel>' e.g. #alerts
- --reporter-slackmsg-collection '<collectionName> e.g test.json
- --reporter-slackmsg-environment '<environmentName> e.g env.json
- --reporter-slackmsg-reportingurl '<URL> e.g https://127.0.1/index.html
-  --reporter-slackmsg-limitFailures '<limitFailures>; e.g 5
+ --reporter-slackmsgforworkflows-messageSize '<messageSize>' e.g 150
+ --reporter-slackmsgforworkflows-token '<bearer token>' e.g xoxb-XXXXXXXXXXXX-TTTTTTTTTTTTTT
+ --reporter-slackmsgforworkflows-channel '<channel>' e.g #general
+ --reporter-slackmsgforworkflows-failuresChannel '<channel>' e.g. #alerts
+ --reporter-slackmsgforworkflows-collection '<collectionName> e.g test.json
+ --reporter-slackmsgforworkflows-environment '<environmentName> e.g env.json
+ --reporter-slackmsgforworkflows-reportingurl '<URL> e.g https://127.0.1/index.html
+  --reporter-slackmsgforworkflows-limitFailures '<limitFailures>; e.g 5
 
 ```
 
