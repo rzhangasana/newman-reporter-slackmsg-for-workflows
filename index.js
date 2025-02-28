@@ -28,9 +28,9 @@ function SlackNewmanReporter(emitter, reporterOptions) {
             channel = reporterOptions.failuresChannel;
         }
         const slackmsg = slackUtils.slackMessage(run.stats, run.timings, run.failures, run.executions, messageSize, collection, environment, channel, reportingUrl, limitFailures)
-        if(slackmsg !== SUCCESS) {
-            slackUtils.send(webhookUrl, slackmsg, token);
-        }
+        // if(slackmsg !== SUCCESS) {
+        slackUtils.send(webhookUrl, slackmsg, token);
+        // }
     });
 
     function missingReporterOptions(reporterOptions) {
